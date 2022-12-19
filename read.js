@@ -1,6 +1,5 @@
 const fs = require("fs");
 const startline = 30; //line which u want to see
-var line = "";
 // fs.readFile("./pixi-new.sarif" /*file*/, (err, inputD /*inpuutD is basically the indiv letter*/) => {
 //   if (err) throw err;
 //   inputline = inputD.toString().split("\n") //to make it line by line
@@ -36,6 +35,31 @@ function breakdownsarif() {
   }
 }
 
+function storedxssattack() {
+  let storedxssdict = xssdict["js/stored-xss"];
+  let storedcodelocator = [];
+  try {
+    storedxssdict.length;
+  } catch (TypeError) {
+    console.log("storedxssattack fail");
+    return;
+  }
+  // console.log("storedxssattack success")
+  for (let i = 0; i < storedxssdict.length; i++) {
+    // console.log(reflectedxssdict[i]["locations"][0])
+    let locodata = [];
+    for (let x = 0;x <storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"].length;x++) {
+      locodata.push(
+        storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["artifactLocation"]["uri"]
+      );
+      locodata.push(
+        readfiledata(storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["artifactLocation"]["uri"],storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["region"]["startLine"])
+      );
+    }
+    storedcodelocator.push(removeDuplicates(locodata));
+  }
+  console.log(storedcodelocator);
+}
 function reflectedxssattack() {
   let reflectedxssdict = xssdict["js/reflected-xss"];
   let reflectedcodelocator = [];
@@ -48,21 +72,12 @@ function reflectedxssattack() {
   // console.log("reflectedxssattack success")
   for (let i = 0; i < reflectedxssdict.length; i++) {
     let locodata = [];
-    for (
-      let x = 0;
-      x <
-      reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"].length;
-      x++
-    ) {
+    for (let x = 0;x <reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"].length;x++) {
       locodata.push(
-        reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x][
-          "location"
-        ]["physicalLocation"]["artifactLocation"]["uri"]
+        reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["artifactLocation"]["uri"]
       );
       locodata.push(
-        reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x][
-          "location"
-        ]["physicalLocation"]["region"]["startLine"]
+        readfiledata(reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["artifactLocation"]["uri"],reflectedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["region"]["startLine"])
       );
     }
     reflectedcodelocator.push(removeDuplicates(locodata));
@@ -80,64 +95,31 @@ function domxssattack() {
   }
   // console.log("domxssattack success")
   for (let i = 0; i < domxssdict.length; i++) {
-    // console.log(domxssdict[i]["locations"][0])
     let locodata = [];
-    for (
-      let x = 0;
-      x < domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"].length;
-      x++
-    ) {
+    for (let x = 0;x < domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"].length;x++) {
       locodata.push(
-        domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x][
-          "location"
-        ]["physicalLocation"]["artifactLocation"]["uri"]
+        domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["artifactLocation"]["uri"]
       );
+
       locodata.push(
-        domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x][
-          "location"
-        ]["physicalLocation"]["region"]["startLine"]
+        readfiledata(domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["artifactLocation"]["uri"],domxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x]["location"]["physicalLocation"]["region"]["startLine"])
       );
     }
     domcodelocator.push(removeDuplicates(locodata));
   }
   console.log(domcodelocator);
 }
-function storedxssattack() {
-  let storedxssdict = xssdict["js/stored-xss"];
-  let storedcodelocator = [];
-  try {
-    storedxssdict.length;
-  } catch (TypeError) {
-    console.log("storedxssattack fail");
-    return;
-  }
-  // console.log("storedxssattack success")
-  for (let i = 0; i < storedxssdict.length; i++) {
-    // console.log(reflectedxssdict[i]["locations"][0])
-    let locodata = [];
-    for (
-      let x = 0;
-      x <
-      storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"].length;
-      x++
-    ) {
-      locodata.push(
-        storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x][
-          "location"
-        ]["physicalLocation"]["artifactLocation"]["uri"]
-      );
-      locodata.push(
-        storedxssdict[i]["codeFlows"][0]["threadFlows"][0]["locations"][x][
-          "location"
-        ]["physicalLocation"]["region"]["startLine"]
-      );
-    }
-    storedcodelocator.push(removeDuplicates(locodata));
-  }
-  console.log(storedcodelocator);
+function readfiledata(filepath,line){
+  var text = fs.readFileSync(filepath).toString().split('\n');
+  return (text[line-1])
 }
+
+
 
 breakdownsarif();
 // storedxssattack()
 // reflectedxssattack()
 domxssattack();
+
+
+
