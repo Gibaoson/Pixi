@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:23.11.1-alpine3.21
 RUN apk add --no-cache make gcc g++ python
 RUN mkdir -p /usr/src/pixi/api
 WORKDIR /usr/src/pixi/api
