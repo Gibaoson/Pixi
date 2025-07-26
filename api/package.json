@@ -19,7 +19,7 @@
     "express": "^4.14.0",
     "express-unless": "^0.3.0",
     "faker": "^4.1.0",
-    "image-downloader": "^3.2.2",
+    "image-downloader": "^4.0.0",
     "jsonwebtoken": "^7.4.1",
     "mongo-sequence": "^0.1.5",
     "mongodb": "^2.2.11",
